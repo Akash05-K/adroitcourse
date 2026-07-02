@@ -19,9 +19,24 @@ const app = express();
 
 // --- Security & performance middleware ---
 app.use(helmet()); // sets various secure HTTP headers
+
+// CORS: supports one or more comma-separated origins via CLIENT_URL
+// (e.g. "http://localhost:3000,https://your-app.vercel.app"), plus any
+// Vercel preview deployment URL for this project automatically.
+const allowedOrigins = (process.env.CLIENT_URL || 'http://localhost:3000')
+  .split(',')
+  .map((url) => url.trim());
+
 app.use(
   cors({
-    origin: process.env.CLIENT_URL || 'http://localhost:3000',
+    origin: (origin, callback) => {
+      // Allow requests with no origin (server-to-server, curl, Postman)
+      if (!origin) return callback(null, true);
+      const isAllowed =
+        allowedOrigins.includes(origin) || /\.vercel\.app$/.test(new URL(origin).hostname);
+      if (isAllowed) return callback(null, true);
+      return callback(new Error(`CORS: origin ${origin} not allowed`));
+    },
     credentials: true,
   })
 );
