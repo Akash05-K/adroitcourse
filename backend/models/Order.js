@@ -16,6 +16,7 @@ const orderSchema = new mongoose.Schema(
     },
     courseTitleSnapshot: String, // snapshot in case course changes later
     priceSnapshot: Number,
+    imageSnapshot: String, // snapshot of course image at time of purchase
     paymentMethod: {
       type: String,
       enum: ['Credit Card', 'Debit Card', 'UPI', 'Net Banking', 'Wallet', 'Cash on Delivery', 'PayPal', 'Stripe'],

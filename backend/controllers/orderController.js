@@ -96,6 +96,7 @@ const purchaseCourse = asyncHandler(async (req, res) => {
           courseId,
           courseTitleSnapshot: course.title,
           priceSnapshot: course.price,
+          imageSnapshot: course.image,
           paymentMethod,
           paymentStatus,
         },

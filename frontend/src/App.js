@@ -13,6 +13,8 @@ import CourseDetails from './pages/CourseDetails';
 import Checkout from './pages/Checkout';
 import OrderSuccess from './pages/OrderSuccess';
 import PurchaseHistory from './pages/PurchaseHistory';
+import Profile from './pages/Profile';
+import Settings from './pages/Settings';
 
 function App() {
   return (
@@ -29,6 +31,8 @@ function App() {
               <Route path="/checkout/:id" element={<PrivateRoute><Checkout /></PrivateRoute>} />
               <Route path="/order-success/:id" element={<PrivateRoute><OrderSuccess /></PrivateRoute>} />
               <Route path="/my-orders" element={<PrivateRoute><PurchaseHistory /></PrivateRoute>} />
+              <Route path="/profile" element={<PrivateRoute><Profile /></PrivateRoute>} />
+              <Route path="/settings" element={<PrivateRoute><Settings /></PrivateRoute>} />
             </Routes>
           </main>
           <Footer />

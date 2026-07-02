@@ -44,10 +44,11 @@ const PurchaseHistory = () => {
             <div className="card border-0 shadow-sm">
               <div className="card-body d-flex flex-column flex-md-row align-items-md-center gap-3">
                 <img
-                  src={order.courseId?.image}
+                  src={order.imageSnapshot || order.courseId?.image || 'https://via.placeholder.com/220x160?text=Course'}
                   alt={order.courseTitleSnapshot}
                   className="rounded-3"
                   style={{ width: 110, height: 80, objectFit: 'cover' }}
+                  onError={(e) => { e.target.onerror = null; e.target.src = 'https://via.placeholder.com/220x160?text=Course'; }}
                 />
                 <div className="flex-grow-1">
                   <p className="fw-semibold mb-1">{order.courseTitleSnapshot}</p>

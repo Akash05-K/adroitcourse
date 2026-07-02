@@ -50,14 +50,23 @@ const CourseDetails = () => {
       <div className="row g-5">
         <div className="col-lg-7">
           <img src={course.image} alt={course.title} className="img-fluid rounded-4 shadow-sm w-100 mb-4" style={{ maxHeight: 420, objectFit: 'cover' }} />
-          <span className="badge bg-primary-subtle text-primary mb-2">{course.category}</span>
-          <h2 className="fw-bold mb-3">{course.title}</h2>
+          <div className="d-flex align-items-center gap-2 mb-2">
+            <span className="badge bg-primary-subtle text-primary">{course.category}</span>
+            <span className="badge bg-secondary-subtle text-secondary">{course.level || 'Beginner'}</span>
+            {course.certificateIncluded !== false && (
+              <span className="certificate-badge mb-0"><i className="bi bi-award-fill"></i>Certificate Included</span>
+            )}
+          </div>
+          <h2 className="text-section mb-3">{course.title}</h2>
 
-          <div className="d-flex align-items-center mb-3">
-            {[1, 2, 3, 4, 5].map((star) => (
-              <i key={star} className={`bi ${star <= Math.round(course.ratings?.average || 0) ? 'bi-star-fill text-warning' : 'bi-star text-warning'}`}></i>
-            ))}
-            <span className="ms-2 text-muted">{course.ratings?.average?.toFixed(1)} ({course.ratings?.count} ratings)</span>
+          <div className="d-flex align-items-center flex-wrap gap-3 mb-3">
+            <div className="d-flex align-items-center">
+              {[1, 2, 3, 4, 5].map((star) => (
+                <i key={star} className={`bi ${star <= Math.round(course.ratings?.average || 0) ? 'bi-star-fill text-warning' : 'bi-star text-warning'}`}></i>
+              ))}
+              <span className="ms-2 text-muted">{course.ratings?.average?.toFixed(1)} ({course.ratings?.count} ratings)</span>
+            </div>
+            <span className="text-muted"><i className="bi bi-people-fill me-1"></i>{course.studentsCount || 0} students</span>
           </div>
 
           <p className="text-secondary">{course.description}</p>
@@ -95,11 +104,11 @@ const CourseDetails = () => {
               </div>
 
               <button
-                className="btn btn-primary btn-lg w-100 fw-semibold"
+                className="btn btn-enroll w-100 fw-semibold py-2"
                 disabled={course.vacantSeats === 0}
                 onClick={() => navigate(`/checkout/${course._id}`)}
               >
-                {course.vacantSeats === 0 ? 'Sold Out' : 'Buy Now'}
+                {course.vacantSeats === 0 ? 'Join Waitlist' : 'Enroll Now'}
               </button>
             </div>
           </div>

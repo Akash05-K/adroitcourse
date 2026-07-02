@@ -88,6 +88,9 @@ const Checkout = () => {
 
   return (
     <div className="container py-5">
+      <button className="btn btn-back mb-3" onClick={() => navigate(-1)}>
+        <i className="bi bi-arrow-left"></i> Back
+      </button>
       <h3 className="fw-bold mb-4"><i className="bi bi-bag-check me-2"></i>Checkout</h3>
 
       {error && <div className="alert alert-danger">{error}</div>}
