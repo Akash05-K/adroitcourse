@@ -663,6 +663,99 @@ a { text-decoration: none; }
    ============================================================ */
 .payment-option { cursor: pointer; transition: all 0.2s ease; border-radius: var(--r-md) !important; }
 .payment-option:hover { border-color: var(--purple-400) !important; }
+/* ---------- Accordion payment method (Meesho/Flipkart style) ---------- */
+.pay-accordion { border-top: 1px solid var(--ink-100); }
+.pay-accordion-item { border-bottom: 1px solid var(--ink-100); }
+.pay-accordion-header {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: none;
+  border: none;
+  padding: 14px 16px;
+  cursor: pointer;
+  text-align: left;
+}
+.pay-accordion-header:hover { background: var(--surface-soft); }
+.pay-header-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.pay-header-icon {
+  font-size: 20px;
+  width: 28px;
+  text-align: center;
+  flex-shrink: 0;
+}
+.pay-header-label {
+  font-weight: 600;
+  font-size: 14px;
+  color: var(--ink-900);
+}
+.pay-selected-tag {
+  display: inline-block;
+  margin-left: 8px;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--purple-700);
+  background: var(--purple-50);
+  padding: 2px 8px;
+  border-radius: 999px;
+}
+.pay-chevron {
+  color: var(--ink-400);
+  transition: transform 0.2s ease;
+  flex-shrink: 0;
+}
+.pay-chevron.open { transform: rotate(180deg); color: var(--purple-700); }
+
+.pay-accordion-body {
+  padding: 4px 16px 18px 56px;
+  animation: pay-expand 0.15s ease;
+}
+@keyframes pay-expand {
+  from { opacity: 0; transform: translateY(-4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.pay-radio-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 4px;
+  border-bottom: 1px solid var(--ink-100);
+  cursor: pointer;
+}
+.pay-radio-row:last-of-type { border-bottom: none; }
+.pay-provider-icon {
+  width: 30px;
+  height: 30px;
+  border-radius: 8px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-size: 15px;
+  flex-shrink: 0;
+}
+
+.pay-pill {
+  background: var(--surface);
+  border: 1px solid var(--ink-100);
+  color: var(--ink-600);
+  font-weight: 600;
+  font-size: 13px;
+  padding: 7px 14px;
+  border-radius: 999px;
+  transition: all 0.18s ease;
+}
+.pay-pill.active {
+  background: var(--purple-700);
+  border-color: var(--purple-700);
+  color: #fff;
+}
 
 /* ============================================================
    Buttons (global overrides)

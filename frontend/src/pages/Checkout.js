@@ -4,14 +4,10 @@ import { toast } from 'react-toastify';
 import api from '../api/axios';
 import Spinner from '../components/Spinner';
 
-const paymentOptions = [
-  { key: 'Credit Card', icon: 'bi-credit-card-fill', label: 'Credit Card' },
-  { key: 'Debit Card', icon: 'bi-credit-card-2-front-fill', label: 'Debit Card' },
-  { key: 'UPI', icon: 'bi-phone-fill', label: 'UPI' },
-  { key: 'Net Banking', icon: 'bi-bank', label: 'Net Banking' },
-  { key: 'Wallet', icon: 'bi-wallet2', label: 'Wallet' },
-  { key: 'Cash on Delivery', icon: 'bi-cash-coin', label: 'Cash on Delivery' },
-  { key: 'PayPal', icon: 'bi-paypal', label: 'PayPal' },
+const upiProviders = [
+  { key: 'gpay', label: 'GPay', icon: 'bi-google', color: '#4285F4' },
+  { key: 'phonepe', label: 'PhonePe', icon: 'bi-phone-fill', color: '#5f259f' },
+  { key: 'paytm', label: 'Paytm', icon: 'bi-wallet2', color: '#00baf2' },
 ];
 
 const Checkout = () => {
@@ -19,7 +15,14 @@ const Checkout = () => {
   const navigate = useNavigate();
   const [course, setCourse] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [selectedMethod, setSelectedMethod] = useState('Credit Card');
+
+  // Which accordion section is expanded, and which method is actually selected
+  const [expandedSection, setExpandedSection] = useState('UPI');
+  const [selectedMethod, setSelectedMethod] = useState('UPI');
+  const [selectedUpiProvider, setSelectedUpiProvider] = useState('gpay');
+  const [upiId, setUpiId] = useState('');
+  const [cardType, setCardType] = useState('Credit Card');
+
   const [cardDetails, setCardDetails] = useState({ number: '', name: '', expiry: '', cvv: '' });
   const [cardErrors, setCardErrors] = useState({});
   const [placingOrder, setPlacingOrder] = useState(false);
@@ -40,7 +43,7 @@ const Checkout = () => {
   }, [id]);
 
   const validateCard = () => {
-    if (!['Credit Card', 'Debit Card'].includes(selectedMethod)) return {};
+    if (selectedMethod !== 'Credit Card' && selectedMethod !== 'Debit Card') return {};
     const errs = {};
     if (!/^\d{16}$/.test(cardDetails.number.replace(/\s/g, ''))) errs.number = 'Enter a valid 16-digit card number';
     if (!cardDetails.name.trim()) errs.name = 'Name on card is required';
@@ -116,84 +119,252 @@ const Checkout = () => {
           </div>
 
           <div className="card border-0 shadow-sm">
-            <div className="card-body">
-              <h6 className="fw-bold mb-3">Select Payment Method</h6>
-              <div className="row g-2 mb-3">
-                {paymentOptions.map((opt) => (
-                  <div className="col-6 col-md-4" key={opt.key}>
-                    <div
-                      className={`payment-option d-flex align-items-center gap-2 p-3 rounded-3 border ${selectedMethod === opt.key ? 'border-primary bg-primary-subtle' : 'border-secondary-subtle'}`}
-                      role="button"
-                      onClick={() => setSelectedMethod(opt.key)}
-                    >
-                      <input type="radio" checked={selectedMethod === opt.key} onChange={() => setSelectedMethod(opt.key)} className="form-check-input mt-0" />
-                      <i className={`bi ${opt.icon} fs-5`}></i>
-                      <span className="small fw-semibold">{opt.label}</span>
+            <div className="card-body p-0">
+              <h6 className="fw-bold px-3 pt-3 pb-2 mb-0">Select Payment Method</h6>
+
+              <div className="pay-accordion">
+                {/* ---------- UPI ---------- */}
+                <div className="pay-accordion-item">
+                  <button
+                    type="button"
+                    className="pay-accordion-header"
+                    onClick={() => setExpandedSection(expandedSection === 'UPI' ? '' : 'UPI')}
+                  >
+                    <span className="pay-header-left">
+                      <i className="bi bi-phone-fill pay-header-icon" style={{ color: '#5f259f' }}></i>
+                      <span>
+                        <span className="pay-header-label">UPI (GPay / PhonePe / Paytm)</span>
+                        {selectedMethod === 'UPI' && <span className="pay-selected-tag">Selected</span>}
+                      </span>
+                    </span>
+                    <i className={`bi bi-chevron-down pay-chevron ${expandedSection === 'UPI' ? 'open' : ''}`}></i>
+                  </button>
+
+                  {expandedSection === 'UPI' && (
+                    <div className="pay-accordion-body">
+                      {upiProviders.map((p) => (
+                        <div
+                          key={p.key}
+                          className="pay-radio-row"
+                          role="button"
+                          onClick={() => { setSelectedMethod('UPI'); setSelectedUpiProvider(p.key); }}
+                        >
+                          <span className="pay-provider-icon" style={{ background: p.color }}>
+                            <i className={`bi ${p.icon}`}></i>
+                          </span>
+                          <span className="flex-grow-1 fw-semibold small">{p.label}</span>
+                          <input
+                            type="radio"
+                            className="form-check-input"
+                            checked={selectedMethod === 'UPI' && selectedUpiProvider === p.key}
+                            onChange={() => { setSelectedMethod('UPI'); setSelectedUpiProvider(p.key); }}
+                          />
+                        </div>
+                      ))}
+                      <div className="pt-2">
+                        <label className="form-label small fw-semibold">Or enter UPI ID</label>
+                        <input
+                          type="text"
+                          className="form-control"
+                          placeholder="yourname@upi"
+                          value={upiId}
+                          onChange={(e) => { setUpiId(e.target.value); setSelectedMethod('UPI'); }}
+                        />
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  )}
+                </div>
+
+                {/* ---------- Cards ---------- */}
+                <div className="pay-accordion-item">
+                  <button
+                    type="button"
+                    className="pay-accordion-header"
+                    onClick={() => setExpandedSection(expandedSection === 'Cards' ? '' : 'Cards')}
+                  >
+                    <span className="pay-header-left">
+                      <i className="bi bi-credit-card-fill pay-header-icon" style={{ color: '#4f46e5' }}></i>
+                      <span>
+                        <span className="pay-header-label">Debit / Credit Card</span>
+                        {['Credit Card', 'Debit Card'].includes(selectedMethod) && (
+                          <span className="pay-selected-tag">Selected</span>
+                        )}
+                      </span>
+                    </span>
+                    <i className={`bi bi-chevron-down pay-chevron ${expandedSection === 'Cards' ? 'open' : ''}`}></i>
+                  </button>
+
+                  {expandedSection === 'Cards' && (
+                    <div className="pay-accordion-body">
+                      <div className="d-flex gap-2 mb-3">
+                        {['Credit Card', 'Debit Card'].map((t) => (
+                          <button
+                            type="button"
+                            key={t}
+                            className={`pay-pill ${cardType === t ? 'active' : ''}`}
+                            onClick={() => { setCardType(t); setSelectedMethod(t); }}
+                          >
+                            {t}
+                          </button>
+                        ))}
+                      </div>
+                      <div className="row g-3">
+                        <div className="col-12">
+                          <label className="form-label small fw-semibold">Card Number</label>
+                          <input
+                            type="text"
+                            maxLength={19}
+                            className={`form-control ${cardErrors.number ? 'is-invalid' : ''}`}
+                            placeholder="1234 5678 9012 3456"
+                            value={cardDetails.number}
+                            onChange={(e) => setCardDetails({ ...cardDetails, number: e.target.value })}
+                          />
+                          {cardErrors.number && <div className="invalid-feedback">{cardErrors.number}</div>}
+                        </div>
+                        <div className="col-12">
+                          <label className="form-label small fw-semibold">Name on Card</label>
+                          <input
+                            type="text"
+                            className={`form-control ${cardErrors.name ? 'is-invalid' : ''}`}
+                            placeholder="John Doe"
+                            value={cardDetails.name}
+                            onChange={(e) => setCardDetails({ ...cardDetails, name: e.target.value })}
+                          />
+                          {cardErrors.name && <div className="invalid-feedback">{cardErrors.name}</div>}
+                        </div>
+                        <div className="col-6">
+                          <label className="form-label small fw-semibold">Expiry (MM/YY)</label>
+                          <input
+                            type="text"
+                            maxLength={5}
+                            className={`form-control ${cardErrors.expiry ? 'is-invalid' : ''}`}
+                            placeholder="MM/YY"
+                            value={cardDetails.expiry}
+                            onChange={(e) => setCardDetails({ ...cardDetails, expiry: e.target.value })}
+                          />
+                          {cardErrors.expiry && <div className="invalid-feedback">{cardErrors.expiry}</div>}
+                        </div>
+                        <div className="col-6">
+                          <label className="form-label small fw-semibold">CVV</label>
+                          <input
+                            type="password"
+                            maxLength={4}
+                            className={`form-control ${cardErrors.cvv ? 'is-invalid' : ''}`}
+                            placeholder="•••"
+                            value={cardDetails.cvv}
+                            onChange={(e) => setCardDetails({ ...cardDetails, cvv: e.target.value })}
+                          />
+                          {cardErrors.cvv && <div className="invalid-feedback">{cardErrors.cvv}</div>}
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                {/* ---------- Net Banking ---------- */}
+                <div className="pay-accordion-item">
+                  <button
+                    type="button"
+                    className="pay-accordion-header"
+                    onClick={() => setExpandedSection(expandedSection === 'NetBanking' ? '' : 'NetBanking')}
+                  >
+                    <span className="pay-header-left">
+                      <i className="bi bi-bank pay-header-icon" style={{ color: '#0d9488' }}></i>
+                      <span>
+                        <span className="pay-header-label">Net Banking</span>
+                        {selectedMethod === 'Net Banking' && <span className="pay-selected-tag">Selected</span>}
+                      </span>
+                    </span>
+                    <i className={`bi bi-chevron-down pay-chevron ${expandedSection === 'NetBanking' ? 'open' : ''}`}></i>
+                  </button>
+                  {expandedSection === 'NetBanking' && (
+                    <div className="pay-accordion-body">
+                      <div className="pay-radio-row" role="button" onClick={() => setSelectedMethod('Net Banking')}>
+                        <span className="flex-grow-1 fw-semibold small">Pay via your bank's net banking portal</span>
+                        <input type="radio" className="form-check-input" checked={selectedMethod === 'Net Banking'} onChange={() => setSelectedMethod('Net Banking')} />
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                {/* ---------- Wallet ---------- */}
+                <div className="pay-accordion-item">
+                  <button
+                    type="button"
+                    className="pay-accordion-header"
+                    onClick={() => setExpandedSection(expandedSection === 'Wallet' ? '' : 'Wallet')}
+                  >
+                    <span className="pay-header-left">
+                      <i className="bi bi-wallet2 pay-header-icon" style={{ color: '#d97706' }}></i>
+                      <span>
+                        <span className="pay-header-label">Wallet</span>
+                        {selectedMethod === 'Wallet' && <span className="pay-selected-tag">Selected</span>}
+                      </span>
+                    </span>
+                    <i className={`bi bi-chevron-down pay-chevron ${expandedSection === 'Wallet' ? 'open' : ''}`}></i>
+                  </button>
+                  {expandedSection === 'Wallet' && (
+                    <div className="pay-accordion-body">
+                      <div className="pay-radio-row" role="button" onClick={() => setSelectedMethod('Wallet')}>
+                        <span className="flex-grow-1 fw-semibold small">Pay using your linked wallet balance</span>
+                        <input type="radio" className="form-check-input" checked={selectedMethod === 'Wallet'} onChange={() => setSelectedMethod('Wallet')} />
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                {/* ---------- Cash on Delivery ---------- */}
+                <div className="pay-accordion-item">
+                  <button
+                    type="button"
+                    className="pay-accordion-header"
+                    onClick={() => setExpandedSection(expandedSection === 'COD' ? '' : 'COD')}
+                  >
+                    <span className="pay-header-left">
+                      <i className="bi bi-cash-coin pay-header-icon" style={{ color: '#16a34a' }}></i>
+                      <span>
+                        <span className="pay-header-label">Cash on Delivery</span>
+                        {selectedMethod === 'Cash on Delivery' && <span className="pay-selected-tag">Selected</span>}
+                      </span>
+                    </span>
+                    <i className={`bi bi-chevron-down pay-chevron ${expandedSection === 'COD' ? 'open' : ''}`}></i>
+                  </button>
+                  {expandedSection === 'COD' && (
+                    <div className="pay-accordion-body">
+                      <div className="pay-radio-row" role="button" onClick={() => setSelectedMethod('Cash on Delivery')}>
+                        <span className="flex-grow-1 fw-semibold small">Pay in cash when your instructor confirms enrollment</span>
+                        <input type="radio" className="form-check-input" checked={selectedMethod === 'Cash on Delivery'} onChange={() => setSelectedMethod('Cash on Delivery')} />
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                {/* ---------- PayPal ---------- */}
+                <div className="pay-accordion-item">
+                  <button
+                    type="button"
+                    className="pay-accordion-header"
+                    onClick={() => setExpandedSection(expandedSection === 'PayPal' ? '' : 'PayPal')}
+                  >
+                    <span className="pay-header-left">
+                      <i className="bi bi-paypal pay-header-icon" style={{ color: '#003087' }}></i>
+                      <span>
+                        <span className="pay-header-label">PayPal</span>
+                        {selectedMethod === 'PayPal' && <span className="pay-selected-tag">Selected</span>}
+                      </span>
+                    </span>
+                    <i className={`bi bi-chevron-down pay-chevron ${expandedSection === 'PayPal' ? 'open' : ''}`}></i>
+                  </button>
+                  {expandedSection === 'PayPal' && (
+                    <div className="pay-accordion-body">
+                      <div className="pay-radio-row" role="button" onClick={() => setSelectedMethod('PayPal')}>
+                        <span className="flex-grow-1 fw-semibold small">You'll be redirected to PayPal to complete payment</span>
+                        <input type="radio" className="form-check-input" checked={selectedMethod === 'PayPal'} onChange={() => setSelectedMethod('PayPal')} />
+                      </div>
+                    </div>
+                  )}
+                </div>
               </div>
-
-              {['Credit Card', 'Debit Card'].includes(selectedMethod) && (
-                <div className="border-top pt-3 mt-2">
-                  <div className="row g-3">
-                    <div className="col-12">
-                      <label className="form-label small fw-semibold">Card Number</label>
-                      <input
-                        type="text"
-                        maxLength={19}
-                        className={`form-control ${cardErrors.number ? 'is-invalid' : ''}`}
-                        placeholder="1234 5678 9012 3456"
-                        value={cardDetails.number}
-                        onChange={(e) => setCardDetails({ ...cardDetails, number: e.target.value })}
-                      />
-                      {cardErrors.number && <div className="invalid-feedback">{cardErrors.number}</div>}
-                    </div>
-                    <div className="col-12">
-                      <label className="form-label small fw-semibold">Name on Card</label>
-                      <input
-                        type="text"
-                        className={`form-control ${cardErrors.name ? 'is-invalid' : ''}`}
-                        placeholder="John Doe"
-                        value={cardDetails.name}
-                        onChange={(e) => setCardDetails({ ...cardDetails, name: e.target.value })}
-                      />
-                      {cardErrors.name && <div className="invalid-feedback">{cardErrors.name}</div>}
-                    </div>
-                    <div className="col-6">
-                      <label className="form-label small fw-semibold">Expiry (MM/YY)</label>
-                      <input
-                        type="text"
-                        maxLength={5}
-                        className={`form-control ${cardErrors.expiry ? 'is-invalid' : ''}`}
-                        placeholder="MM/YY"
-                        value={cardDetails.expiry}
-                        onChange={(e) => setCardDetails({ ...cardDetails, expiry: e.target.value })}
-                      />
-                      {cardErrors.expiry && <div className="invalid-feedback">{cardErrors.expiry}</div>}
-                    </div>
-                    <div className="col-6">
-                      <label className="form-label small fw-semibold">CVV</label>
-                      <input
-                        type="password"
-                        maxLength={4}
-                        className={`form-control ${cardErrors.cvv ? 'is-invalid' : ''}`}
-                        placeholder="•••"
-                        value={cardDetails.cvv}
-                        onChange={(e) => setCardDetails({ ...cardDetails, cvv: e.target.value })}
-                      />
-                      {cardErrors.cvv && <div className="invalid-feedback">{cardErrors.cvv}</div>}
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {selectedMethod === 'UPI' && (
-                <div className="border-top pt-3 mt-2">
-                  <label className="form-label small fw-semibold">UPI ID</label>
-                  <input type="text" className="form-control" placeholder="yourname@upi" />
-                </div>
-              )}
             </div>
           </div>
         </div>
