@@ -139,9 +139,37 @@ const courses = [
 const importData = async () => {
   try {
     await connectDB();
-    await Course.deleteMany();
-    await Course.insertMany(courses);
-    console.log('✅ Sample courses inserted successfully');
+
+    // Upsert each course by title instead of wiping and recreating everything.
+    // This keeps each course's _id stable across repeated `npm run seed` runs,
+    // which matters because Orders reference courses by _id — if courses got
+    // new IDs on every reseed, a student re-purchasing the "same" course
+    // (same title) after a reseed would bypass the duplicate-purchase check,
+    // since it would look like a brand new course to the database.
+    let created = 0;
+    let updated = 0;
+
+    for (const courseData of courses) {
+      const existing = await Course.findOne({ title: courseData.title });
+
+      if (existing) {
+        // Preserve vacantSeats if it's been purchased down already;
+        // only reset it if totalSeats changed (rare, dev-time schema tweak).
+        const vacantSeats =
+          existing.totalSeats === courseData.totalSeats ? existing.vacantSeats : courseData.totalSeats;
+
+        await Course.updateOne(
+          { _id: existing._id },
+          { $set: { ...courseData, vacantSeats } }
+        );
+        updated++;
+      } else {
+        await Course.create({ ...courseData, vacantSeats: courseData.totalSeats });
+        created++;
+      }
+    }
+
+    console.log(`✅ Seed complete — ${created} course(s) created, ${updated} course(s) updated (IDs preserved)`);
     process.exit();
   } catch (error) {
     console.error(`Error: ${error.message}`);
