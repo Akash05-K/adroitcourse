@@ -17,6 +17,14 @@ connectDB();
 
 const app = express();
 
+// Trust the first proxy hop. Needed because:
+// - In development, CRA's dev server proxy (package.json "proxy" field)
+//   forwards requests and sets X-Forwarded-For.
+// - In production on Render (and most PaaS providers), requests arrive
+//   through a reverse proxy that sets the same header.
+// Without this, express-rate-limit can't reliably identify unique clients.
+app.set('trust proxy', 1);
+
 // --- Security & performance middleware ---
 app.use(helmet()); // sets various secure HTTP headers
 
@@ -30,6 +38,14 @@ const allowedOrigins = (process.env.CLIENT_URL || 'http://localhost:3000')
 app.use(
   cors({
     origin: (origin, callback) => {
+      // In development, CRA's dev server proxy can rewrite the Origin
+      // header to the proxy target itself (e.g. http://localhost:5000),
+      // which would otherwise be incorrectly rejected by the allowlist
+      // below. Since the CRA proxy already keeps requests effectively
+      // same-origin from the browser's perspective, we skip strict origin
+      // checking outside of production.
+      if (process.env.NODE_ENV !== 'production') return callback(null, true);
+
       // Allow requests with no origin (server-to-server, curl, Postman)
       if (!origin) return callback(null, true);
       const isAllowed =

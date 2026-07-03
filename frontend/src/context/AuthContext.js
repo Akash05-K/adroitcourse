@@ -7,22 +7,22 @@ export const useAuth = () => useContext(AuthContext);
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(() => {
-    const stored = localStorage.getItem('user');
+    const stored = sessionStorage.getItem('user');
     return stored ? JSON.parse(stored) : null;
   });
   const [loading, setLoading] = useState(false);
 
-  // Keep localStorage in sync whenever user state changes
+  // Keep sessionStorage in sync whenever user state changes
   useEffect(() => {
-    if (user) localStorage.setItem('user', JSON.stringify(user));
-    else localStorage.removeItem('user');
+    if (user) sessionStorage.setItem('user', JSON.stringify(user));
+    else sessionStorage.removeItem('user');
   }, [user]);
 
   const login = async (email, password) => {
     setLoading(true);
     try {
       const { data } = await api.post('/auth/login', { email, password });
-      localStorage.setItem('token', data.token);
+      sessionStorage.setItem('token', data.token);
       setUser(data.user);
       return { success: true };
     } catch (err) {
@@ -39,7 +39,7 @@ export const AuthProvider = ({ children }) => {
     setLoading(true);
     try {
       const { data } = await api.post('/auth/register', { name, email, password });
-      localStorage.setItem('token', data.token);
+      sessionStorage.setItem('token', data.token);
       setUser(data.user);
       return { success: true };
     } catch (err) {
@@ -58,8 +58,8 @@ export const AuthProvider = ({ children }) => {
     } catch (_) {
       /* ignore network errors on logout */
     } finally {
-      localStorage.removeItem('token');
-      localStorage.removeItem('user');
+      sessionStorage.removeItem('token');
+      sessionStorage.removeItem('user');
       setUser(null);
     }
   };

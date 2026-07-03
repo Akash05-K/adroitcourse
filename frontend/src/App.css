@@ -651,7 +651,13 @@ a { text-decoration: none; }
   background: radial-gradient(circle at top, var(--purple-50) 0%, var(--surface-soft) 60%);
 }
 .auth-card { border-radius: 20px; }
-
+.password-toggle-btn {
+  cursor: pointer;
+  color: var(--ink-400);
+  transition: color 0.15s ease;
+}
+.password-toggle-btn:hover { color: var(--purple-700); }
+.password-toggle-btn:focus { outline: none; box-shadow: none; }
 /* ============================================================
    Payment options (checkout)
    ============================================================ */
