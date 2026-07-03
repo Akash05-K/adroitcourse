@@ -124,7 +124,7 @@ const courses = [
     duration: '5 weeks',
     dailyTiming: '5:30 PM - 7:00 PM',
     totalSeats: 55,
-    vacantSeats: 40,
+    vacantSeats: 1,
     price: 169,
     instructor: { name: 'Priya Nair', bio: 'Data Scientist, 6 yrs experience', photo: '' },
     image: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=800&h=450&fit=crop',
