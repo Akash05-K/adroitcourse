@@ -16,10 +16,11 @@ const Checkout = () => {
   const [course, setCourse] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  // Which accordion section is expanded, and which method is actually selected
-  const [expandedSection, setExpandedSection] = useState('UPI');
-  const [selectedMethod, setSelectedMethod] = useState('UPI');
-  const [selectedUpiProvider, setSelectedUpiProvider] = useState('gpay');
+  // Which accordion section is expanded, and which method is actually selected.
+  // Nothing is pre-selected — the user must actively choose a payment method.
+  const [expandedSection, setExpandedSection] = useState('');
+  const [selectedMethod, setSelectedMethod] = useState('');
+  const [selectedUpiProvider, setSelectedUpiProvider] = useState('');
   const [upiId, setUpiId] = useState('');
   const [cardType, setCardType] = useState('Credit Card');
 
@@ -53,6 +54,12 @@ const Checkout = () => {
   };
 
   const handlePlaceOrder = async () => {
+    if (!selectedMethod) {
+      setError('Please select a payment method to continue.');
+      toast.error('Please select a payment method to continue.');
+      return;
+    }
+
     const errs = validateCard();
     setCardErrors(errs);
     if (Object.keys(errs).length > 0) return;
@@ -390,7 +397,7 @@ const Checkout = () => {
               <button
                 className="btn btn-primary w-100 py-2 fw-semibold"
                 onClick={handlePlaceOrder}
-                disabled={placingOrder || course.vacantSeats === 0}
+                disabled={placingOrder || course.vacantSeats === 0 || !selectedMethod}
               >
                 {placingOrder ? (
                   <>
@@ -403,7 +410,13 @@ const Checkout = () => {
                 )}
               </button>
               <p className="text-muted small text-center mt-2 mb-0">
-                <i className="bi bi-shield-check me-1"></i>100% Secure Checkout
+                {!selectedMethod ? (
+                  <span className="text-warning-emphasis">
+                    <i className="bi bi-info-circle me-1"></i>Select a payment method above to continue
+                  </span>
+                ) : (
+                  <><i className="bi bi-shield-check me-1"></i>100% Secure Checkout</>
+                )}
               </p>
             </div>
           </div>
