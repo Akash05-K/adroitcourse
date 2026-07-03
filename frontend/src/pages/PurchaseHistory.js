@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import api from '../api/axios';
 import Spinner from '../components/Spinner';
 
@@ -7,6 +7,7 @@ const PurchaseHistory = () => {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchOrders = async () => {
@@ -26,6 +27,9 @@ const PurchaseHistory = () => {
 
   return (
     <div className="container py-5">
+      <button className="btn btn-back mb-3" onClick={() => navigate('/')}>
+        <i className="bi bi-arrow-left"></i> Back to Courses
+      </button>
       <h3 className="fw-bold mb-4"><i className="bi bi-bag-check-fill me-2"></i>My Purchases</h3>
 
       {error && <div className="alert alert-danger">{error}</div>}
