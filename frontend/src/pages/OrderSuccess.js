@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, useNavigate, Link } from 'react-router-dom';
 import api from '../api/axios';
 import Spinner from '../components/Spinner';
 
 const OrderSuccess = () => {
   const { id } = useParams();
+  const navigate = useNavigate();
   const [order, setOrder] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -40,7 +41,15 @@ const OrderSuccess = () => {
     <div className="container py-5">
       <div className="row justify-content-center">
         <div className="col-md-7">
-          <div className="card border-0 shadow-lg text-center p-4">
+          <div className="card border-0 shadow-lg text-center p-4 position-relative">
+            <button
+              type="button"
+              className="receipt-close-btn"
+              onClick={() => navigate('/')}
+              aria-label="Close"
+            >
+              <i className="bi bi-x-lg"></i>
+            </button>
             <div className="card-body">
               <i
                 className={`bi ${isSuccess ? 'bi-check-circle-fill text-success' : 'bi-x-circle-fill text-danger'}`}

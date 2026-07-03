@@ -559,7 +559,27 @@ a { text-decoration: none; }
   border-color: var(--purple-400);
   color: var(--purple-700);
 }
-
+.receipt-close-btn {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: none;
+  background: var(--ink-100);
+  color: var(--ink-600);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  transition: all 0.18s ease;
+  z-index: 2;
+}
+.receipt-close-btn:hover {
+  background: var(--rose-50);
+  color: var(--rose-500);
+}
 /* ============================================================
    Section wrapper + generic
    ============================================================ */
