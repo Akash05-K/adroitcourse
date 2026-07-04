@@ -147,6 +147,18 @@ const getMyOrders = asyncHandler(async (req, res) => {
   res.json({ success: true, orders });
 });
 
+// @desc    Get every student's enrollments across all courses (for admin)
+// @route   GET /api/orders/admin/all
+// @access  Private/Admin
+const getAllOrdersForAdmin = asyncHandler(async (req, res) => {
+  const orders = await Order.find({})
+    .populate('userId', 'name email')
+    .populate('courseId', 'title category')
+    .sort({ createdAt: -1 });
+
+  res.json({ success: true, orders });
+});
+
 // @desc    Get single order by ID (order confirmation page)
 // @route   GET /api/orders/:id
 // @access  Private
@@ -167,4 +179,4 @@ const getOrderById = asyncHandler(async (req, res) => {
   res.json({ success: true, order });
 });
 
-module.exports = { purchaseCourse, getMyOrders, getOrderById };
+module.exports = { purchaseCourse, getMyOrders, getAllOrdersForAdmin, getOrderById };

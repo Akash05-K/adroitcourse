@@ -17,6 +17,7 @@ import PurchaseHistory from './pages/PurchaseHistory';
 import Profile from './pages/Profile';
 import Settings from './pages/Settings';
 import AdminDashboard from './pages/AdminDashboard';
+import AdminStudents from './pages/AdminStudents';
 
 function App() {
   return (
@@ -36,6 +37,7 @@ function App() {
               <Route path="/profile" element={<PrivateRoute><Profile /></PrivateRoute>} />
               <Route path="/settings" element={<PrivateRoute><Settings /></PrivateRoute>} />
               <Route path="/admin" element={<AdminRoute><AdminDashboard /></AdminRoute>} />
+              <Route path="/admin/students" element={<AdminRoute><AdminStudents /></AdminRoute>} />
             </Routes>
           </main>
           <Footer />
