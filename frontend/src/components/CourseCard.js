@@ -80,7 +80,7 @@ const CourseCard = ({ course }) => {
           )}
 
           <div className="course-card-footer">
-            <span className="course-price">${course.price}</span>
+            <span className="course-price">₹{course.price}</span>
             <div className="course-card-actions">
               <button
                 className="btn btn-view-details"
