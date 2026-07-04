@@ -70,6 +70,16 @@ const AppNavbar = () => {
                         <i className="bi bi-gear me-2"></i>Settings
                       </Link>
                     </li>
+                    {user?.role === 'admin' && (
+                      <>
+                        <li><hr className="dropdown-divider" /></li>
+                        <li>
+                          <Link className="dropdown-item" to="/admin">
+                            <i className="bi bi-speedometer2 me-2"></i>Admin Dashboard
+                          </Link>
+                        </li>
+                      </>
+                    )}
                     <li><hr className="dropdown-divider" /></li>
                     <li>
                       <button className="dropdown-item text-danger" onClick={handleLogout}>

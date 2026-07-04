@@ -5,6 +5,7 @@ import { AuthProvider } from './context/AuthContext';
 import AppNavbar from './components/Navbar';
 import Footer from './components/Footer';
 import PrivateRoute from './components/PrivateRoute';
+import AdminRoute from './components/AdminRoute';
 
 import Login from './pages/Login';
 import Register from './pages/Register';
@@ -15,6 +16,7 @@ import OrderSuccess from './pages/OrderSuccess';
 import PurchaseHistory from './pages/PurchaseHistory';
 import Profile from './pages/Profile';
 import Settings from './pages/Settings';
+import AdminDashboard from './pages/AdminDashboard';
 
 function App() {
   return (
@@ -33,6 +35,7 @@ function App() {
               <Route path="/my-orders" element={<PrivateRoute><PurchaseHistory /></PrivateRoute>} />
               <Route path="/profile" element={<PrivateRoute><Profile /></PrivateRoute>} />
               <Route path="/settings" element={<PrivateRoute><Settings /></PrivateRoute>} />
+              <Route path="/admin" element={<AdminRoute><AdminDashboard /></AdminRoute>} />
             </Routes>
           </main>
           <Footer />
