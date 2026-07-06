@@ -65,7 +65,9 @@ const AdminFeedback = () => {
 
     setUploading(true);
     try {
-      const { data } = await api.post('/feedback/upload-form', formData);
+      const { data } = await api.post('/feedback/upload-form', formData, {
+        headers: { 'Content-Type': undefined },
+      });
       toast.success(data.message);
       setFile(null);
       document.getElementById('feedbackFileInput').value = '';
