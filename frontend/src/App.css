@@ -580,6 +580,42 @@ a { text-decoration: none; }
   background: var(--rose-50);
   color: var(--rose-500);
 }
+/* ---------- Feedback modal ---------- */
+.feedback-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(20, 18, 31, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1080;
+  padding: var(--sp-2);
+}
+.feedback-modal {
+  background: var(--surface);
+  border-radius: var(--r-lg);
+  padding: var(--sp-3);
+  width: 100%;
+  max-width: 520px;
+  max-height: 85vh;
+  overflow-y: auto;
+  box-shadow: var(--shadow-lg);
+}
+.feedback-modal-body {
+  max-height: 50vh;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+.feedback-star-btn {
+  background: none;
+  border: none;
+  font-size: 22px;
+  color: var(--amber-500);
+  padding: 2px 4px;
+  line-height: 1;
+  transition: transform 0.12s ease;
+}
+.feedback-star-btn:hover { transform: scale(1.15); }
 /* ============================================================
    Section wrapper + generic
    ============================================================ */

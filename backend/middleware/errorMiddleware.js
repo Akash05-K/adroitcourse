@@ -20,8 +20,22 @@ const errorHandler = (err, req, res, next) => {
   // Mongoose duplicate key error
   if (err.code === 11000) {
     statusCode = 400;
-    const field = Object.keys(err.keyValue)[0];
-    message = `Duplicate value for field: ${field}`;
+    if (err.keyValue?.student && err.keyValue?.course) {
+      message = 'You have already submitted feedback for this course';
+    } else {
+      const field = Object.keys(err.keyValue)[0];
+      message = `Duplicate value for field: ${field}`;
+    }
+  }
+
+  // Multer file upload errors (wrong type, too large, etc.)
+  if (err.name === 'MulterError') {
+    statusCode = 400;
+    if (err.code === 'LIMIT_FILE_SIZE') {
+      message = 'File is too large — please upload a file under 2MB';
+    } else {
+      message = `Upload error: ${err.message}`;
+    }
   }
 
   // Mongoose validation error

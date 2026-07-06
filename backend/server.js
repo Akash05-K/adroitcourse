@@ -11,7 +11,7 @@ const { notFound, errorHandler } = require('./middleware/errorMiddleware');
 const authRoutes = require('./routes/authRoutes');
 const courseRoutes = require('./routes/courseRoutes');
 const orderRoutes = require('./routes/orderRoutes');
-
+const feedbackRoutes = require('./routes/feedbackRoutes');
 // Connect to MongoDB
 connectDB();
 
@@ -90,7 +90,7 @@ app.get('/api/health', (req, res) => res.json({ success: true, message: 'API is 
 app.use('/api/auth', authRoutes);
 app.use('/api/courses', courseRoutes);
 app.use('/api/orders', orderRoutes);
-
+app.use('/api/feedback', feedbackRoutes);
 // --- Error handling (must be last) ---
 app.use(notFound);
 app.use(errorHandler);

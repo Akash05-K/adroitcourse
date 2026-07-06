@@ -18,6 +18,7 @@ import Profile from './pages/Profile';
 import Settings from './pages/Settings';
 import AdminDashboard from './pages/AdminDashboard';
 import AdminStudents from './pages/AdminStudents';
+import AdminFeedback from './pages/AdminFeedback';
 
 function App() {
   return (
@@ -38,6 +39,7 @@ function App() {
               <Route path="/settings" element={<PrivateRoute><Settings /></PrivateRoute>} />
               <Route path="/admin" element={<AdminRoute><AdminDashboard /></AdminRoute>} />
               <Route path="/admin/students" element={<AdminRoute><AdminStudents /></AdminRoute>} />
+              <Route path="/admin/feedback" element={<AdminRoute><AdminFeedback /></AdminRoute>} />
             </Routes>
           </main>
           <Footer />

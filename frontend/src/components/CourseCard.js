@@ -1,5 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 
 const levelIcon = {
   Beginner: 'bi-signal-2',
@@ -16,6 +17,8 @@ const formatStudents = (n) => {
 
 const CourseCard = ({ course }) => {
   const navigate = useNavigate();
+  const { user } = useAuth();
+  const isAdmin = user?.role === 'admin';
   const seatsLeftPct = Math.round((course.vacantSeats / course.totalSeats) * 100);
   const isFull = course.vacantSeats === 0;
 
@@ -84,17 +87,20 @@ const CourseCard = ({ course }) => {
             <div className="course-card-actions">
               <button
                 className="btn btn-view-details"
+                style={isAdmin ? { flex: 1 } : undefined}
                 onClick={() => navigate(`/courses/${course._id}`)}
               >
                 View Details
               </button>
-              <button
-                className="btn btn-enroll"
-                disabled={isFull}
-                onClick={() => navigate(`/checkout/${course._id}`)}
-              >
-                {isFull ? 'Join Waitlist' : 'Enroll Now'}
-              </button>
+              {!isAdmin && (
+                <button
+                  className="btn btn-enroll"
+                  disabled={isFull}
+                  onClick={() => navigate(`/checkout/${course._id}`)}
+                >
+                  {isFull ? 'Join Waitlist' : 'Enroll Now'}
+                </button>
+              )}
             </div>
           </div>
         </div>

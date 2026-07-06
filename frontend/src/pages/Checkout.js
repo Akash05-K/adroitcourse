@@ -383,16 +383,16 @@ const Checkout = () => {
               <h6 className="fw-bold mb-3">Price Summary</h6>
               <div className="d-flex justify-content-between mb-2">
                 <span className="text-muted">Course Price</span>
-                <span>${course.price.toFixed(2)}</span>
+                <span>₹{course.price.toFixed(2)}</span>
               </div>
               <div className="d-flex justify-content-between mb-2">
                 <span className="text-muted">Tax (5%)</span>
-                <span>${tax.toFixed(2)}</span>
+                <span>₹{tax.toFixed(2)}</span>
               </div>
               <hr />
               <div className="d-flex justify-content-between fw-bold fs-5 mb-3">
                 <span>Total</span>
-                <span className="text-primary">${total.toFixed(2)}</span>
+                <span className="text-primary">₹{total.toFixed(2)}</span>
               </div>
               <button
                 className="btn btn-primary w-100 py-2 fw-semibold"
@@ -405,7 +405,7 @@ const Checkout = () => {
                   </>
                 ) : (
                   <>
-                    <i className="bi bi-lock-fill me-2"></i>Pay ${total.toFixed(2)}
+                    <i className="bi bi-lock-fill me-2"></i>Pay ₹{total.toFixed(2)}
                   </>
                 )}
               </button>

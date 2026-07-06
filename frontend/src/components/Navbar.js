@@ -44,6 +44,11 @@ const AppNavbar = () => {
                       </NavLink>
                     </li>
                     <li className="nav-item">
+                      <NavLink className={({ isActive }) => `nav-link app-link ${isActive ? 'active' : ''}`} to="/admin/feedback">
+                        <i className="bi bi-star-fill me-1"></i>Feedback
+                      </NavLink>
+                    </li>
+                    <li className="nav-item">
                       <NavLink className={({ isActive }) => `nav-link app-link ${isActive ? 'active' : ''}`} to="/" end>
                         <i className="bi bi-grid-fill me-1"></i>Courses
                       </NavLink>

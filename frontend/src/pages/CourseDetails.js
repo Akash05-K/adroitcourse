@@ -2,10 +2,13 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import api from '../api/axios';
 import Spinner from '../components/Spinner';
+import { useAuth } from '../context/AuthContext';
 
 const CourseDetails = () => {
   const { id } = useParams();
   const navigate = useNavigate();
+  const { user } = useAuth();
+  const isAdmin = user?.role === 'admin';
   const [course, setCourse] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -84,7 +87,7 @@ const CourseDetails = () => {
         <div className="col-lg-5">
           <div className="card shadow-lg border-0 sticky-top" style={{ top: '90px' }}>
             <div className="card-body p-4">
-              <h2 className="fw-bold text-primary mb-3">${course.price}</h2>
+              <h2 className="fw-bold text-primary mb-3">₹{course.price}</h2>
 
               <ul className="list-unstyled d-flex flex-column gap-2 mb-4">
                 <li><i className="bi bi-clock-history me-2 text-primary"></i>Duration: <strong>{course.duration}</strong></li>
@@ -103,13 +106,21 @@ const CourseDetails = () => {
                 <p className="small text-muted mt-1 mb-0">{course.vacantSeats} of {course.totalSeats} seats available</p>
               </div>
 
-              <button
-                className="btn btn-enroll w-100 fw-semibold py-2"
-                disabled={course.vacantSeats === 0}
-                onClick={() => navigate(`/checkout/${course._id}`)}
-              >
-                {course.vacantSeats === 0 ? 'Join Waitlist' : 'Enroll Now'}
-              </button>
+              {isAdmin ? (
+                <div className="alert alert-secondary small mb-0 text-center">
+                  <i className="bi bi-info-circle me-1"></i>
+                  Admin view — manage this course from the{' '}
+                  <Link to="/admin" className="fw-semibold">Admin Dashboard</Link>.
+                </div>
+              ) : (
+                <button
+                  className="btn btn-enroll w-100 fw-semibold py-2"
+                  disabled={course.vacantSeats === 0}
+                  onClick={() => navigate(`/checkout/${course._id}`)}
+                >
+                  {course.vacantSeats === 0 ? 'Join Waitlist' : 'Enroll Now'}
+                </button>
+              )}
             </div>
           </div>
         </div>
