@@ -39,7 +39,9 @@ const feedbackSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-// A student can only submit feedback once per course
-feedbackSchema.index({ student: 1, course: 1 }, { unique: true });
+// A student can only submit feedback once per course PER FORM VERSION.
+// This means when the admin uploads a new form, students who already
+// answered the old one are free to submit again for the new question set.
+feedbackSchema.index({ student: 1, course: 1, formVersion: 1 }, { unique: true });
 
 module.exports = mongoose.model('Feedback', feedbackSchema);

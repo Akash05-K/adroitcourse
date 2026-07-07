@@ -67,6 +67,21 @@ const getActiveForm = asyncHandler(async (req, res) => {
   res.json({ success: true, form });
 });
 
+// @desc    Delete a feedback form template. Existing student responses tied
+//          to it are kept (Feedback documents store their own snapshot via
+//          formVersion + answers), so historical analytics are unaffected —
+//          this only stops new submissions until a new form is uploaded.
+// @route   DELETE /api/feedback/form/:id
+// @access  Private/Admin
+const deleteFeedbackForm = asyncHandler(async (req, res) => {
+  const form = await FeedbackForm.findByIdAndDelete(req.params.id);
+  if (!form) {
+    res.status(404);
+    throw new Error('Feedback form not found');
+  }
+  res.json({ success: true, message: 'Feedback form deleted' });
+});
+
 // @desc    Get the logged-in student's pending (not-yet-reviewed) and
 //          already-submitted courses, based on their successful purchases
 // @route   GET /api/feedback/my-status
@@ -79,7 +94,12 @@ const getMyFeedbackStatus = asyncHandler(async (req, res) => {
     'title'
   );
 
-  const submittedFeedback = await Feedback.find({ student: req.user._id }).select('course');
+  // Only responses submitted against the CURRENTLY active form count as
+  // "already submitted" — if the admin uploaded a new form since the
+  // student last responded, they should be prompted again.
+  const submittedFeedback = activeForm
+    ? await Feedback.find({ student: req.user._id, formVersion: activeForm._id }).select('course')
+    : [];
   const submittedCourseIds = new Set(submittedFeedback.map((f) => f.course.toString()));
 
   const seenCourseIds = new Set();
@@ -139,10 +159,12 @@ const submitFeedback = asyncHandler(async (req, res) => {
     throw new Error('No feedback form is currently active');
   }
 
-  // Unique index on {student, course} guarantees this at the DB level too,
-  // but we check first to return a clean error message instead of a raw
-  // duplicate-key error.
-  const existing = await Feedback.findOne({ student: req.user._id, course: courseId });
+  // Unique index on {student, course, formVersion} guarantees this at the
+  // DB level too, but we check first to return a clean error message
+  // instead of a raw duplicate-key error. Scoping by formVersion means a
+  // student who already answered an OLDER form can submit again once a
+  // new form has been uploaded.
+  const existing = await Feedback.findOne({ student: req.user._id, course: courseId, formVersion: activeForm._id });
   if (existing) {
     res.status(400);
     throw new Error('You have already submitted feedback for this course');
@@ -159,12 +181,19 @@ const submitFeedback = asyncHandler(async (req, res) => {
   res.status(201).json({ success: true, message: 'Thank you for your feedback!', feedback });
 });
 
-
 // @desc    Get aggregated feedback analytics (course-wise, question-wise, overall)
 // @route   GET /api/feedback/analytics
 // @access  Private/Admin
 const getAnalytics = asyncHandler(async (req, res) => {
-  const feedbackList = await Feedback.find({}).populate('course', 'title category');
+  const activeForm = await FeedbackForm.findOne().sort({ createdAt: -1 });
+
+  // Only count responses to the CURRENTLY active form. Once the admin
+  // uploads a new form, older responses become historical and drop out of
+  // the live charts — they're still preserved in the database, just not
+  // shown here, since they answered a different question set.
+  const feedbackList = activeForm
+    ? await Feedback.find({ formVersion: activeForm._id }).populate('course', 'title category')
+    : [];
 
   if (feedbackList.length === 0) {
     return res.json({
@@ -212,7 +241,6 @@ const getAnalytics = asyncHandler(async (req, res) => {
       qEntry.count += 1;
     }
   }
-  
 
   const byCourse = Array.from(courseMap.values()).map((c) => ({
     courseId: c.courseId,
@@ -237,10 +265,10 @@ const getAnalytics = asyncHandler(async (req, res) => {
   });
 });
 
-
 module.exports = {
   uploadFeedbackForm,
   getActiveForm,
+  deleteFeedbackForm,
   getMyFeedbackStatus,
   submitFeedback,
   getAnalytics,

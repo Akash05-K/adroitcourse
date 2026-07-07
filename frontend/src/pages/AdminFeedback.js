@@ -53,6 +53,20 @@ const AdminFeedback = () => {
     fetchAnalytics();
   }, [fetchForm, fetchAnalytics]);
 
+  const handleDeleteForm = async () => {
+    if (!activeForm) return;
+    if (!window.confirm('Delete this feedback form? Students will no longer be able to submit new feedback until you upload a new one. Existing responses and analytics are kept.')) {
+      return;
+    }
+    try {
+      await api.delete(`/feedback/form/${activeForm._id}`);
+      toast.success('Feedback form deleted');
+      setActiveForm(null);
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Failed to delete feedback form');
+    }
+  };
+
   const handleUpload = async (e) => {
     e.preventDefault();
     if (!file) {
@@ -120,15 +134,26 @@ const AdminFeedback = () => {
 
           {activeForm && (
             <div className="mt-3 pt-3 border-top">
-              <p className="small fw-semibold mb-2">
-                Active form — {activeForm.questions.length} question(s)
-                {activeForm.sourceFileName && ` (from "${activeForm.sourceFileName}")`}
-              </p>
-              <ol className="small text-muted mb-0 ps-3">
-                {activeForm.questions.map((q, i) => (
-                  <li key={i}>{q}</li>
-                ))}
-              </ol>
+              <div className="feedback-file-card">
+                <div className="feedback-file-icon">
+                  <i className="bi bi-file-earmark-spreadsheet-fill"></i>
+                </div>
+                <div className="flex-grow-1">
+                  <p className="fw-semibold mb-0">{activeForm.sourceFileName || 'Feedback form'}</p>
+                  <p className="text-muted small mb-0">
+                    {activeForm.questions.length} question{activeForm.questions.length !== 1 ? 's' : ''} • Uploaded{' '}
+                    {new Date(activeForm.createdAt).toLocaleDateString()}
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  className="btn btn-sm btn-outline-danger"
+                  onClick={handleDeleteForm}
+                  title="Delete this feedback form"
+                >
+                  <i className="bi bi-trash"></i>
+                </button>
+              </div>
             </div>
           )}
         </div>

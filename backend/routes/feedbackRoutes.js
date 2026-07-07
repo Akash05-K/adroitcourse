@@ -2,6 +2,7 @@ const express = require('express');
 const {
   uploadFeedbackForm,
   getActiveForm,
+  deleteFeedbackForm,
   getMyFeedbackStatus,
   submitFeedback,
   getAnalytics,
@@ -13,6 +14,7 @@ const router = express.Router();
 
 router.post('/upload-form', protect, admin, upload.single('file'), uploadFeedbackForm);
 router.get('/form', protect, getActiveForm);
+router.delete('/form/:id', protect, admin, deleteFeedbackForm);
 router.get('/my-status', protect, getMyFeedbackStatus);
 router.post('/', protect, submitFeedback);
 router.get('/analytics', protect, admin, getAnalytics);
